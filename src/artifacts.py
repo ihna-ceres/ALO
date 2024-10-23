@@ -119,8 +119,14 @@ class Aritifacts:
             if not os.path.exists(path): 
                 return float(0)
             import subprocess
-            result = subprocess.check_output(['du', '-sb', path]).decode('utf-8').split()[0]
-            return float(result)
+            # Check if the system is macOS or Linux
+            import platform
+            if platform.system() == 'Darwin':  # macOS
+                result = subprocess.check_output(['du', '-s', '-k', path]).decode('utf-8').split()[0]
+                result = str(int(result) * 1024)  # Convert KB to bytes
+            else:  # Linux
+                result = subprocess.check_output(['du', '-sb', path]).decode('utf-8').split()[0]
+            return float(result) 
         train_size = _get_folder_size(train_path)
         inference_size = _get_folder_size(inference_path)
         total_size = train_size + inference_size
